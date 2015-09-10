@@ -1,0 +1,61 @@
+//$Body_SM_FL_Transform[] = {`getAttr Body_SuspensionMount_FL.translateX`, `getAttr Body_SuspensionMount_FL.translateY`, `getAttr Body_SuspensionMount_FL.translateZ`};
+//$Body_SM_FL_Transform[] = `getAttr Body_SuspensionMount_FL.translate`;
+
+print `getAttr Body_ShockMount_FL.translate`;
+
+$ShockPath = `fileDialog2 -cap "Pick Shocks FBX" -fm 1 -okc 2 -cc 2`;
+file -import -type "FBX"  -ignoreVersion -ra true -mergeNamespacesOnClash false -options "v=0;"  -pr $ShockPath;
+//This setAttr BS needss to go
+setAttr "Shock_Spring.scaleX" 1;
+setAttr "Shock_Top.scaleX" 1;
+setAttr "Shock_Bottom.scaleX" 1;
+setAttr "Shock_Spring.scaleY" 1;
+setAttr "Shock_Top.scaleY" 1;
+setAttr "Shock_Bottom.scaleY" 1;
+setAttr "Shock_Spring.scaleZ" 1;
+setAttr "Shock_Top.scaleZ" 1;
+setAttr "Shock_Bottom.scaleZ" 1;
+
+
+
+
+ 
+
+float $ShockSpringTranslate[] = `getAttr Shock_Spring.translate`;
+float $AxleShockMountFLTran[] = `getAttr Axle_ShockMount_FL.translate`;
+float $BodyShockMountFLTran[] = `getAttr Body_ShockMount_FL.translate`;
+//float $EulerForShock[] = `angleBetween -er -v1 $ShockSpringTranslate[0] $ShockSpringTranslate[1] $ShockSpringTranslate[2]
+//-v2 $BodyShockMountTran[0] $BodyShockMountTran[1] $BodyShockMountTran[2]`;
+ 
+//select -r Shock_Spring;
+//rotate -ws -eu $EulerForShock[0] $EulerForShock[1] $EulerForShock[2];
+
+//Allign Shock parts to specified locator
+select -r Shock_Top;
+select -add Body_ShockMount_FL;
+align -x mid -y max -z mid -atl;
+
+select -r Shock_Bottom;
+select -add Axle_ShockMount_FL;
+align -x mid -y min -z mid -atl;
+
+select -r Shock_Spring;
+select -add Axle_ShockMount_FL;
+align -x mid -y min -z mid -atl;
+
+
+//rotate shock parts towards eachother
+float $sinAngle = (((float)$AxleShockMountFLTran[0] - (float)$BodyShockMountFLTran[0]) / ((float)$AxleShockMountFLTran[1] - (float)$BodyShockMountFLTran[1]));
+//float $TestFloat = (float)$AxleShockMountFLTran[1] - (float)$BodyShockMountFLTran[1];
+float $TestFloat = asind($sinAngle);
+float $rotXAngle = $TestFloat / 2;
+
+
+select -r Shock_Spring;
+select -add Shock_Bottom;
+select -add Shock_Top;
+rotate -r -os -fo $rotXAngle 0 0 ;
+proc BuildSuspension()
+{
+    
+}
