@@ -1,4 +1,4 @@
-float $ShockSpringTranslate[] = `getAttr Shock_Spring.translate`;
+//float $ShockSpringTranslate[] = `getAttr Shock_Spring.translate`;
 float $AxleShockMountFLTran[] = `getAttr Axle_ShockMount_FL.translate`;
 float $BodyShockMountFLTran[] = `getAttr Body_ShockMount_FL.translate`;
  
@@ -10,111 +10,94 @@ pointShocks();
  
 proc pointLocators()
 {
-    select -r Axle_ShockMount_FL;
-    select -add Body_ShockMount_FL;
-    aimConstraint -offset 0 0 0 -weight 1 -aimVector 0 1 0 -upVector 0 1 0 -worldUpType "vector" -worldUpVector 0 1 0;
+    string $FourCorners[] = {"_FL", "_FR", "_BL", "_BR"};
     
-    select -r Body_ShockMount_FL;
-    select -add Axle_ShockMount_FL;
-    aimConstraint -offset 0 0 0 -weight 1 -aimVector 0 1 0 -upVector 0 1 0 -worldUpType "vector" -worldUpVector 0 1 0;
+    for($corner in $FourCorners)
+    {
+    select -r ("Axle_ShockMount" + $corner);
+    select -add ("Body_ShockMount" + $corner);
+    aimConstraint -weight 1 -aimVector 0 1 0 -upVector 0 1 0 -worldUpType "vector" -worldUpVector 0 1 0;
+    
+    select -r ("Body_ShockMount" + $corner);
+    select -add ("Axle_ShockMount" + $corner);
+    aimConstraint -weight 1 -aimVector 0 1 0 -upVector 0 1 0 -worldUpType "vector" -worldUpVector 0 1 0;
+    };
 }
 
 proc pointShocks()
 {
+    //Attribute Suffix
     string $AlignmentAttributes[] = {".translateX", ".translateY", ".translateZ",".rotateX", ".rotateY", ".rotateZ"};
-    /*
-    select -r Shock_Top;
-    setAttr ("Shock_Top.tx") `getAttr Body_ShockMount_FL.tx`;
-    setAttr ("Shock_Top.ty") `getAttr Body_ShockMount_FL.ty`;
-    setAttr ("Shock_Top.tz") `getAttr Body_ShockMount_FL.tz`;
-    
-    setAttr ("Shock_Top.rx") `getAttr Body_ShockMount_FL.rx`;
-    setAttr ("Shock_Top.ry") `getAttr Body_ShockMount_FL.ry`;
-    setAttr ("Shock_Top.rz") `getAttr Body_ShockMount_FL.rz`;
-    */
-    select -r Shock_Top;
-    for($ShockAttr in $AlignmentAttributes)
+    //Location Suffix
+    string $FourCorners[] = {"_FL", "_FR", "_BL", "_BR"};
+
+    for($corner in $FourCorners)
     {
-        setAttr ("Shock_Top" + $ShockAttr) `getAttr ("Body_ShockMount_FL" + $ShockAttr)`;
-    };
+        for($ShockAttr in $AlignmentAttributes)
+        {
+            setAttr ("Shock_Top" + $ShockAttr) `getAttr ("Body_ShockMount" + $corner + $ShockAttr)`;
+        };
        
-    
-    select -r Shock_Bottom;
-    for($ShockAttr in $AlignmentAttributes)
-    {
-        setAttr ("Shock_Bottom" + $ShockAttr) `getAttr ("Axle_ShockMount_FL" + $ShockAttr)`;
-    };
-    
-    select -r Shock_Spring;
-    for($ShockAttr in $AlignmentAttributes)
-    {
-        setAttr ("Shock_Spring" + $ShockAttr) `getAttr ("Axle_ShockMount_FL" + $ShockAttr)`;
-    };    
-    //make this a for loop
-    //select -r Body_ShockMount_FL ;
-    //select -add Shock_Spring;
-    //aimConstraint -offset 0 0 0 -weight 1 -aimVector 0 1 0 -upVector 0 1 0 -worldUpType "vector" -worldUpVector 0 1 0;
-    
-    select -r Body_ShockMount_FL ;
-    //select -add Shock_Bottom;
-    //aimConstraint -offset 0 0 0 -weight 1 -aimVector 0 1 0 -upVector 0 1 0 -worldUpType "vector" -worldUpVector 0 1 0;
-    
-    
+        select -r Shock_Bottom;
+        for($ShockAttr in $AlignmentAttributes)
+        {
+            setAttr ("Shock_Bottom" + $ShockAttr) `getAttr ("Axle_ShockMount" + $corner + $ShockAttr)`;
+        };
+        
+        //Shock Spring should be centered to shock
+        select -r Shock_Spring;
+        for($ShockAttr in $AlignmentAttributes)
+        {
+            setAttr ("Shock_Spring" + $ShockAttr) `getAttr ("Axle_ShockMount" + $corner + $ShockAttr)`;
+        };   
+    }; 
 }
 
 proc ImportShocks()
 {
     $ShockPath = `fileDialog2 -cap "Pick Shocks FBX" -fm 1 -okc 2 -cc 2`;
     file -import -type "FBX"  -ignoreVersion -ra true -mergeNamespacesOnClash false -options "v=0;"  -pr $ShockPath;
+    
+    setShockAttributes();
+    
+    
+    
 }
 
 proc setShockAttributes()
 {
+    string $FourCorners[] = {"_FL", "_FR", "_BL", "_BR"};
+    
     //This setAttr BS needss to go
-setAttr "Shock_Spring.scaleX" 2;
-setAttr "Shock_Top.scaleX" 2;
-setAttr "Shock_Bottom.scaleX" 2;
-setAttr "Shock_Spring.scaleY" 2;
-setAttr "Shock_Top.scaleY" 2;
-setAttr "Shock_Bottom.scaleY" 2;
-setAttr "Shock_Spring.scaleZ" 2;
-setAttr "Shock_Top.scaleZ" 2;
-setAttr "Shock_Bottom.scaleZ" 2;
+    setAttr "Shock_Spring.scaleX" 1.5;
+    setAttr "Shock_Top.scaleX" 1.5;
+    setAttr "Shock_Bottom.scaleX" 1.5;
+    setAttr "Shock_Spring.scaleY" 1.5;
+    setAttr "Shock_Top.scaleY" 1.5;
+    setAttr "Shock_Bottom.scaleY" 1.5;
+    setAttr "Shock_Spring.scaleZ" 1.5;
+    setAttr "Shock_Top.scaleZ" 1.5;
+    setAttr "Shock_Bottom.scaleZ" 1.5;
+    
+    select -r Shock_Top;
+    move 0 0 0;
+    setAttr "Shock_Top.rotateX" 90;
+    makeIdentity -apply true -r 1 -s 0 -n 0 -pn 1;
+    DeleteHistory;
+    
+    select -r Shock_Top Shock_Bottom Shock_Spring;
+    duplicate -rr;
+    duplicate -rr;
+    duplicate -rr;
+    
 
-select -r Shock_Top;
-move 0 0 0;
-setAttr "Shock_Top.rotateX" 90;
-makeIdentity -apply true -r 1 -s 0 -n 0 -pn 1;
-DeleteHistory;
-//select -add Body_ShockMount_FL;
-//align -x mid -y dist -z mid -atl;
+    
+    select -r Shock_Bottom;
+    move 0 0 0;
+    makeIdentity -apply true -t 1 -r 1 -s 0 -n 0 -pn 1;
+    
+    select -r Shock_Spring;
+    move 0 0 0;
+    makeIdentity -apply true -t 1 -r 1 -s 0 -n 0 -pn 1;
 
-select -r Shock_Bottom;
-move 0 0 0;
-makeIdentity -apply true -t 1 -r 1 -s 0 -n 0 -pn 1;
-//select -add Axle_ShockMount_FL;
-//align -x mid -y min -z mid -atl;
-
-select -r Shock_Spring;
-move 0 0 0;
-makeIdentity -apply true -t 1 -r 1 -s 0 -n 0 -pn 1;
-//select -add Axle_ShockMount_FL;
-//align -x mid -y min -z mid -atl;
 }
-
-//float $EulerRotation[] = `angleBetween -er -v1 $AxleShockMountFLTran[0] $AxleShockMountFLTran[1] $AxleShockMountFLTran[2]
- //-v2 $BodyShockMountFLTran[0] $BodyShockMountFLTran[1] $BodyShockMountFLTran[2]`; 
-//select -r Shock_Spring;
-//rotate -ws -eu $EulerForShock[0] $EulerForShock[1] $EulerForShock[2];
-
-//Allign Shock parts to specified locator
-
-
-
-//rotate shock parts towards eachother
-//float $sinAngle = (((float)$AxleShockMountFLTran[0] - (float)$BodyShockMountFLTran[0]) / ((float)$AxleShockMountFLTran[1] - (float)$BodyShockMountFLTran[1]));
-//float $TestFloat = (float)$AxleShockMountFLTran[1] - (float)$BodyShockMountFLTran[1];
-//float $TestFloat = asind($sinAngle);
-//float $rotXAngle = $TestFloat / 2;
-
-
