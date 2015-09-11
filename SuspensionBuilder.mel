@@ -79,18 +79,31 @@ proc setShockAttributes()
     setAttr "Shock_Top.scaleZ" 1.5;
     setAttr "Shock_Bottom.scaleZ" 1.5;
     
+    select "Shock_*";
+    $ShockParts[] = `ls -sn -sl`;
+    for($ShockPart in $ShockParts)
+    {
+        setAttr "Shock_*.scaleX" 1.5; 
+    };
+    
     select -r Shock_Top;
     move 0 0 0;
     setAttr "Shock_Top.rotateX" 90;
     makeIdentity -apply true -r 1 -s 0 -n 0 -pn 1;
     DeleteHistory;
-    
+    //Duplicate and rename shock;
     select -r Shock_Top Shock_Bottom Shock_Spring;
+    
     duplicate -rr;
     duplicate -rr;
     duplicate -rr;
     
-
+    select "Shock_Top";
+    string $selection[] = `ls -sn -sl`;
+    for ($corner in $FourCorners)
+    {
+        rename "Shock_
+    };
     
     select -r Shock_Bottom;
     move 0 0 0;
