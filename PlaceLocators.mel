@@ -1,0 +1,76 @@
+//Place Locators
+
+float $AxleTopX = 169.0;
+float $AxleTopY = -45.0;
+float $AxleTopZ = 78.0;
+
+float $AxleBackX = 163.0;
+float $AxleBackY = -50.0;
+float $AxleBackZ = 73.0;
+
+float $AxleBackHighY = -32.0;
+float $AxleBackHighZ = 7.0;
+
+float $FloorFrontX = 63.0;
+float $FloorFrontY = -41.0;
+float $FloorFrontZ = 31.0;
+
+float $FloorSideMountX = 68.0;
+float $FloorSideMountY = -27.0;
+float $FloorSideMountZ = 48.0;
+
+float $FrontSuspMountX = 156.0;
+float $FrontSuspMountY = 39.0;
+float $FrontSuspMountZ = 59.0;
+
+
+//Front Axle Mounts
+string $Corners[] = {"_FL", "_FR", "_BL", "_BR"};
+float $FL[] = {1.0, 1.0, -1.0};
+float $FR[] = {1.0, 1.0, 1.0};
+float $BL[] = {-1.0, 1.0, -1.0};
+float $BR[] =  {-1.0, 1.0, 1.0};
+
+matrix $Mult[4][3] = << $FL[0], $FL[1], $FL[2]; $FR[0], $FR[1], $FR[2]; $BL[0], $BL[1], $BL[2]; $BR[0], $BR[1], $BR[2] >>;
+//This will not work for both front and back shocks
+for ($i = 0; $i < size($Corners); $i++)
+{
+   spaceLocator -p 0 0 0 -n ("Axle_AntiSwaybarMount" + $Corners[$i]);
+   ScaleAndMove($AxleBackX, $AxleBackY, $AxleBackZ, $i, $Mult);
+   
+   spaceLocator -p 0 0 0 -n ("Axle_ShockMount" + $Corners[$i]);
+   ScaleAndMove($AxleTopX, $AxleTopY, $AxleTopZ, $i, $Mult);
+
+   spaceLocator -p 0 0 0 -n ("Axle_CrossbarMount" + $Corners[$i]); 
+   ScaleAndMove($AxleBackX, $AxleBackHighY, $AxleBackHighZ, $i, $Mult);
+   
+   spaceLocator -p 0 0 0 -n ("Floor_CrossbarMount" + $Corners[$i]); 
+   ScaleAndMove($FloorFrontX, $FloorFrontY, $FloorFrontZ, $i, $Mult);
+   
+   spaceLocator -p 0 0 0 -n ("Floor_AntiSwaybarMount" + $Corners[$i]); 
+   ScaleAndMove($FloorSideMountX, $FloorSideMountY, $FloorSideMountZ, $i, $Mult);
+   
+   select -r ("Floor_AntiSwaybarMount" + $Corners[$i]);
+   select -add ("Axle_AntiSwaybarMount" + $Corners[$i]);
+   aimConstraint -offset 0 0 0 -weight 1 -aimVector 1 0 0 -upVector 0 1 0 -worldUpType "vector" -worldUpVector 0 1 0;
+   
+   select -r ("Axle_AntiSwaybarMount" + $Corners[$i]);
+   select -add ("Floor_AntiSwaybarMount" + $Corners[$i]);
+   aimConstraint -offset 0 0 0 -weight 1 -aimVector 1 0 0 -upVector 0 1 0 -worldUpType "vector" -worldUpVector 0 1 0;
+    
+   select -r ("Axle_CrossbarMount" + $Corners[$i]);
+   select -add ("Floor_CrossbarMount" + $Corners[$i]);
+   aimConstraint -offset 0 0 0 -weight 1 -aimVector 1 0 0 -upVector 0 1 0 -worldUpType "vector" -worldUpVector 0 1 0;
+    
+   select -r ("Floor_CrossbarMount" + $Corners[$i]);
+   select -add ("Axle_CrossbarMount" + $Corners[$i]);
+   aimConstraint -offset 0 0 0 -weight 1 -aimVector 1 0 0 -upVector 0 1 0 -worldUpType "vector" -worldUpVector 0 1 0;
+};
+
+
+
+proc ScaleAndMove(float $x, float $y, float $z, int $ind, matrix $Multi)
+{
+    scale 5 5 5;
+    move ($x * $Multi[$ind][0]) ($y * $Multi[$ind][1]) ($z * $Multi[$ind][2]);
+}

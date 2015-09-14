@@ -1,13 +1,7 @@
-//float $ShockSpringTranslate[] = `getAttr Shock_Spring.translate`;
-float $AxleShockMountFLTran[] = `getAttr Axle_ShockMount_FL.translate`;
-float $BodyShockMountFLTran[] = `getAttr Body_ShockMount_FL.translate`;
- 
-
 pointLocators();
 ImportShocks();
-setShockAttributes();
 pointShocks();
- 
+
 proc pointLocators()
 {
     string $FourCorners[] = {"_FL", "_FR", "_BL", "_BR"};
@@ -22,6 +16,61 @@ proc pointLocators()
     select -add ("Axle_ShockMount" + $corner);
     aimConstraint -weight 1 -aimVector 0 1 0 -upVector 0 1 0 -worldUpType "vector" -worldUpVector 0 1 0;
     };
+    select -cl;
+}
+
+proc ImportShocks()
+{
+    $ShockPath = `fileDialog2 -cap "Pick Shocks FBX" -fm 1 -okc 2 -cc 2`;
+    file -import -type "FBX"  -ignoreVersion -ra true -mergeNamespacesOnClash false -options "v=0;"  -pr $ShockPath;
+    
+    setShockAttributes();    
+}
+
+proc setShockAttributes()
+{
+    string $corners[] = {"_FL", "_FR", "_BL", "_BR"};
+        
+    select "Shock_*";
+    string $ShockParts[] = `ls -sl -sn`;
+    for($ShockPart in $ShockParts)
+    {
+        scale -a 1.5 1.5 1.5;
+    };
+    
+    select -r Shock_Top;
+    move 0 0 0;
+    setAttr "Shock_Top.rotateX" 90;
+    makeIdentity -apply true -r 1 -s 0 -n 0 -pn 1;
+    DeleteHistory;
+    
+    select -r Shock_Bottom;
+    move 0 0 0;
+    makeIdentity -apply true -t 1 -r 1 -s 0 -n 0 -pn 1;
+    
+    select -r Shock_Spring;
+    move 0 0 0;
+    makeIdentity -apply true -t 1 -r 1 -s 0 -n 0 -pn 1;
+    
+    //Duplicate and rename shock;
+    select -r Shock_Top Shock_Bottom Shock_Spring;
+    
+    duplicate -rr;
+    duplicate -rr;
+    duplicate -rr;
+    
+    //rename all shocks    
+    select -r Shock_Top Shock_Bottom Shock_Spring Shock_Top1 Shock_Bottom1 Shock_Spring1 Shock_Top2 Shock_Bottom2 Shock_Spring2 Shock_Top3 Shock_Bottom3 Shock_Spring3;
+    string $selection[] = `ls -sl -sn`;
+    for ($i = 0; $i < size($corners); $i++)
+    {
+        select -r $selection[$i * 3];
+        rename ($selection[0] + $corners[$i]);
+        select -r $selection[$i * 3 + 1];
+        rename ($selection[1] + $corners[$i]);
+        select -r $selection[$i * 3 + 2];
+        rename ($selection[2] + $corners[$i]);
+    };
 }
 
 proc pointShocks()
@@ -35,82 +84,42 @@ proc pointShocks()
     {
         for($ShockAttr in $AlignmentAttributes)
         {
-            setAttr ("Shock_Top" + $ShockAttr) `getAttr ("Body_ShockMount" + $corner + $ShockAttr)`;
+            setAttr ("Shock_Top" + $corner + $ShockAttr) `getAttr ("Body_ShockMount" + $corner + $ShockAttr)`;
         };
        
-        select -r Shock_Bottom;
         for($ShockAttr in $AlignmentAttributes)
         {
-            setAttr ("Shock_Bottom" + $ShockAttr) `getAttr ("Axle_ShockMount" + $corner + $ShockAttr)`;
+            setAttr ("Shock_Bottom" + $corner + $ShockAttr) `getAttr ("Axle_ShockMount" + $corner + $ShockAttr)`;
         };
         
         //Shock Spring should be centered to shock
-        select -r Shock_Spring;
         for($ShockAttr in $AlignmentAttributes)
         {
-            setAttr ("Shock_Spring" + $ShockAttr) `getAttr ("Axle_ShockMount" + $corner + $ShockAttr)`;
+            setAttr ("Shock_Spring" + $corner + $ShockAttr) `getAttr ("Axle_ShockMount" + $corner + $ShockAttr)`;
         };   
     }; 
 }
 
-proc ImportShocks()
+//rename this
+proc MakeBeams()
 {
-    $ShockPath = `fileDialog2 -cap "Pick Shocks FBX" -fm 1 -okc 2 -cc 2`;
-    file -import -type "FBX"  -ignoreVersion -ra true -mergeNamespacesOnClash false -options "v=0;"  -pr $ShockPath;
+    for ($i = 0; $i < size($Corners); $i++)
+{
+    float $vertex1[] = `("Axle_AntiSwaybarMount" + $Corners[$i] + ".transform")`;
+    float $vertex2[] = `("Floor_AntiSwaybarMount" + $Corners[$i] + ".transform")`;
     
-    setShockAttributes();
+    float $diffX = $vertex1[0] - $vertex2[0];
+    float $diffY = $vertex1[1] - $vertex2[1];
+    float $diffZ = $vertex1[2] - $vertex2[2];
+    float $barLength = sqrt( ($diffX*$diffX) + ($diffY*$diffY) + ($diffZ*$diffZ) );
     
+    float $barSpawn[] = { ($vertex1[0] + $vertex2[0])/2 , ($vertex1[1] + $vertex2[1])/2, ($vertex1[2] + $vertex2[2])/2}; 
+    float $cylinderEnd[] = {$barSpawn[0], $barSpawn[1] - $barLength, $barSpawn[2]};
+  
+    float $vertWOSpawn[] = {$vertex1[0] - $barSpawn[0], $vertex1[1] - $barSpawn[1], $vertex1[2] - $barSpawn[2] };
+    float $cylEndWOSpawn[] = {$cylinderEnd[0] - $barSpawn[0], $cylinderEnd[1] - $barSpawn[1], $cylinderEnd[2] - $barSpawn[2] };
+    float $eulerRot[] = `angleBetween -er -v1 $vertWOSpawn[0] $vertWOSpawn[1] $vertWOSpawn[2] -v2 $cylEndWOSpawn[0] $cylEndWOSpawn[1] $cylEndWOSpawn[2]`;
     
-    
+    //you left off here
 }
-
-proc setShockAttributes()
-{
-    string $FourCorners[] = {"_FL", "_FR", "_BL", "_BR"};
-    
-    //This setAttr BS needss to go
-    setAttr "Shock_Spring.scaleX" 1.5;
-    setAttr "Shock_Top.scaleX" 1.5;
-    setAttr "Shock_Bottom.scaleX" 1.5;
-    setAttr "Shock_Spring.scaleY" 1.5;
-    setAttr "Shock_Top.scaleY" 1.5;
-    setAttr "Shock_Bottom.scaleY" 1.5;
-    setAttr "Shock_Spring.scaleZ" 1.5;
-    setAttr "Shock_Top.scaleZ" 1.5;
-    setAttr "Shock_Bottom.scaleZ" 1.5;
-    
-    select "Shock_*";
-    $ShockParts[] = `ls -sn -sl`;
-    for($ShockPart in $ShockParts)
-    {
-        setAttr "Shock_*.scaleX" 1.5; 
-    };
-    
-    select -r Shock_Top;
-    move 0 0 0;
-    setAttr "Shock_Top.rotateX" 90;
-    makeIdentity -apply true -r 1 -s 0 -n 0 -pn 1;
-    DeleteHistory;
-    //Duplicate and rename shock;
-    select -r Shock_Top Shock_Bottom Shock_Spring;
-    
-    duplicate -rr;
-    duplicate -rr;
-    duplicate -rr;
-    
-    select "Shock_Top";
-    string $selection[] = `ls -sn -sl`;
-    for ($corner in $FourCorners)
-    {
-        rename "Shock_
-    };
-    
-    select -r Shock_Bottom;
-    move 0 0 0;
-    makeIdentity -apply true -t 1 -r 1 -s 0 -n 0 -pn 1;
-    
-    select -r Shock_Spring;
-    move 0 0 0;
-    makeIdentity -apply true -t 1 -r 1 -s 0 -n 0 -pn 1;
-
 }
