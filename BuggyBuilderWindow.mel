@@ -1,0 +1,96 @@
+//BuggyBuilderWindow.mel
+
+int $winExist = `window -query -ex BuggyBuilderWindow`;
+
+if($winExist == 1)
+{
+    deleteUI -window "BuggyBuilderWindow";
+}
+
+window 
+-w 250
+-h 500
+-t "Buggy Builder" 
+BuggyBuilderWindow;
+
+columnLayout;
+
+textFieldGrp
+    -label "Give name to new Cage"
+    NewCageName;
+    
+text -label "Pick Individual Bar Subdivision Axis:";
+
+intFieldGrp NewSubAxis;
+    
+
+floatSliderGrp
+    -field true 
+    -min 1.0
+    -max 4.0
+    -label "Bar Radius: "
+    BarRadiusValue;
+
+text -label "Create Lattice Structure:";
+text -label "(Make sure you select a poly object first)";
+button -label Box2Lattice -command "CallLatticeProc";
+
+text -label "Place Locators (This button sucks change the code)";
+button -label PlaceLocators -command "CallPlaceLocators()";
+
+textFieldButtonGrp
+    -ed false
+    //-fileName
+    -label "Shock FBX file Path: "
+    -buttonLabel "Open"
+    -buttonCommand "MyOpenFileDialog"
+    ShockFBXPath;
+
+
+button -label PointLocators -command "CallPointLocators";
+
+button -label PlaceShocks -en false -command "PlaceAllShocks" PlaceShocks;
+
+button -label PlaceSuspension -command "PlaceAllBars";
+
+proc CallLatticeProc()
+{
+    //buildLatticeStructure(float $newBarRadius, string $newCageName){}
+    float $BarRadius = `floatSliderGrp -query -v "BarRadiusValue"`;
+    int $BarSubAxis = `intFieldGrp -query -v1 "NewSubAxis"`;
+    string $CageName = `textFieldGrp -query -text "NewCageName"`;
+    buildLatticeStructure($BarRadius, $BarSubAxis, $CageName);
+}
+
+proc CallPlaceLocators()
+{
+    PlaceAllTheLocators();
+}
+
+proc MyOpenFileDialog()
+{
+    $ShockPath = `fileDialog2 -cap "Pick Shocks FBX" -fm 1 -okc 2 -cc 2`;
+    //file -import -type "FBX"  -ignoreVersion -ra true -mergeNamespacesOnClash false -options "v=0;"  -pr $ShockPath;
+    textFieldButtonGrp -e -tx $ShockPath -ip 1 ShockFBXPath;
+    button -e -en true PlaceShocks;
+    //setShockAttributes();    
+}
+
+proc CallPointLocators()
+{
+    pointLocators();
+}
+proc PlaceAllShocks()
+{
+    $ShockPath = `textFieldButtonGrp -query -text ShockFBXPath`;
+    file -import -type "FBX"  -ignoreVersion -ra true -mergeNamespacesOnClash false -options "v=0;"  -pr $ShockPath;
+    
+    setShockAttributes();
+    pointShocks();
+}
+
+proc PlaceAllBars()
+{
+    MakeBeams();
+}
+showWindow BuggyBuilderWindow;

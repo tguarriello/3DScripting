@@ -1,8 +1,12 @@
-pointLocators();
-ImportShocks();
-pointShocks();
+//SuspensionBuilder.mel
 
-proc pointLocators()
+//pointLocators();
+//ImportShocks();
+//pointShocks();
+//MakeBeams();
+
+//This Function only points the ShockMount Locators
+global proc pointLocators()
 {
     string $FourCorners[] = {"_FL", "_FR", "_BL", "_BR"};
     
@@ -19,7 +23,7 @@ proc pointLocators()
     select -cl;
 }
 
-proc ImportShocks()
+global proc ImportShocks()
 {
     $ShockPath = `fileDialog2 -cap "Pick Shocks FBX" -fm 1 -okc 2 -cc 2`;
     file -import -type "FBX"  -ignoreVersion -ra true -mergeNamespacesOnClash false -options "v=0;"  -pr $ShockPath;
@@ -27,7 +31,7 @@ proc ImportShocks()
     setShockAttributes();    
 }
 
-proc setShockAttributes()
+global proc setShockAttributes()
 {
     string $corners[] = {"_FL", "_FR", "_BL", "_BR"};
         
@@ -73,7 +77,7 @@ proc setShockAttributes()
     };
 }
 
-proc pointShocks()
+global proc pointShocks()
 {
     //Attribute Suffix
     string $AlignmentAttributes[] = {".translateX", ".translateY", ".translateZ",".rotateX", ".rotateY", ".rotateZ"};
@@ -101,14 +105,14 @@ proc pointShocks()
 }
 
 //rename this
-proc MakeBeams()
+global proc MakeBeams()
 {
     float $barRadiusFloat = 2.0;
     string $corners[] = {"_FL", "_FR", "_BL", "_BR"};
-    for ($i = 0.0; $i < size($corners); $i++)
+    for ($i = 0; $i < size($corners); $i++)
     {
-        float $vertex1[] = `getAttr ("Axle_AntiSwaybarMount" + $corners[$i] + ".transform")`;
-        float $vertex2[] = `getAttr ("Floor_AntiSwaybarMount" + $corners[$i] + ".transform")`;
+        float $vertex1[] = `pointPosition ("Axle_AntiSwaybarMount" + $corners[$i])`;
+        float $vertex2[] = `pointPosition ("Floor_AntiSwaybarMount" + $corners[$i])`;
         
         float $diffX = $vertex1[0] - $vertex2[0];
         float $diffY = $vertex1[1] - $vertex2[1];
@@ -127,8 +131,8 @@ proc MakeBeams()
        move -ws $barSpawn[0] $barSpawn[1] $barSpawn[2];
        rotate -ws  -eu ($eulerRot[0] * -1) ($eulerRot[1] ) ($eulerRot[2]* -1 );
        
-        float $vertex1[] = `("Floor_CrossbarMount" + $corners[$i] + ".transform")`;
-        float $vertex2[] = `("Axle_CrossbarMount" + $corners[$i] + ".transform")`;
+        float $vertex1[] = `pointPosition("Floor_CrossbarMount" + $corners[$i])`;
+        float $vertex2[] = `pointPosition("Axle_CrossbarMount" + $corners[$i])`;
         
         float $diffX = $vertex1[0] - $vertex2[0];
         float $diffY = $vertex1[1] - $vertex2[1];
