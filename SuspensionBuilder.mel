@@ -103,23 +103,49 @@ proc pointShocks()
 //rename this
 proc MakeBeams()
 {
-    for ($i = 0; $i < size($Corners); $i++)
-{
-    float $vertex1[] = `("Axle_AntiSwaybarMount" + $Corners[$i] + ".transform")`;
-    float $vertex2[] = `("Floor_AntiSwaybarMount" + $Corners[$i] + ".transform")`;
-    
-    float $diffX = $vertex1[0] - $vertex2[0];
-    float $diffY = $vertex1[1] - $vertex2[1];
-    float $diffZ = $vertex1[2] - $vertex2[2];
-    float $barLength = sqrt( ($diffX*$diffX) + ($diffY*$diffY) + ($diffZ*$diffZ) );
-    
-    float $barSpawn[] = { ($vertex1[0] + $vertex2[0])/2 , ($vertex1[1] + $vertex2[1])/2, ($vertex1[2] + $vertex2[2])/2}; 
-    float $cylinderEnd[] = {$barSpawn[0], $barSpawn[1] - $barLength, $barSpawn[2]};
-  
-    float $vertWOSpawn[] = {$vertex1[0] - $barSpawn[0], $vertex1[1] - $barSpawn[1], $vertex1[2] - $barSpawn[2] };
-    float $cylEndWOSpawn[] = {$cylinderEnd[0] - $barSpawn[0], $cylinderEnd[1] - $barSpawn[1], $cylinderEnd[2] - $barSpawn[2] };
-    float $eulerRot[] = `angleBetween -er -v1 $vertWOSpawn[0] $vertWOSpawn[1] $vertWOSpawn[2] -v2 $cylEndWOSpawn[0] $cylEndWOSpawn[1] $cylEndWOSpawn[2]`;
-    
-    //you left off here
-}
+    float $barRadiusFloat = 2.0;
+    string $corners[] = {"_FL", "_FR", "_BL", "_BR"};
+    for ($i = 0.0; $i < size($corners); $i++)
+    {
+        float $vertex1[] = `getAttr ("Axle_AntiSwaybarMount" + $corners[$i] + ".transform")`;
+        float $vertex2[] = `getAttr ("Floor_AntiSwaybarMount" + $corners[$i] + ".transform")`;
+        
+        float $diffX = $vertex1[0] - $vertex2[0];
+        float $diffY = $vertex1[1] - $vertex2[1];
+        float $diffZ = $vertex1[2] - $vertex2[2];
+        float $barLength = sqrt( ($diffX*$diffX) + ($diffY*$diffY) + ($diffZ*$diffZ) );
+        
+        float $barSpawn[] = { ($vertex1[0] + $vertex2[0])/2 , ($vertex1[1] + $vertex2[1])/2, ($vertex1[2] + $vertex2[2])/2}; 
+        float $cylinderEnd[] = {$barSpawn[0], $barSpawn[1] - $barLength, $barSpawn[2]};
+      
+        float $vertWOSpawn[] = {$vertex1[0] - $barSpawn[0], $vertex1[1] - $barSpawn[1], $vertex1[2] - $barSpawn[2] };
+        float $cylEndWOSpawn[] = {$cylinderEnd[0] - $barSpawn[0], $cylinderEnd[1] - $barSpawn[1], $cylinderEnd[2] - $barSpawn[2] };
+        float $eulerRot[] = `angleBetween -er -v1 $vertWOSpawn[0] $vertWOSpawn[1] $vertWOSpawn[2] -v2 $cylEndWOSpawn[0] $cylEndWOSpawn[1] $cylEndWOSpawn[2]`;
+        
+        //you left off here
+       polyCylinder -r $barRadiusFloat -sx 8 -h $barLength -n ("AntiSwayBar" + $corners[$i]);
+       move -ws $barSpawn[0] $barSpawn[1] $barSpawn[2];
+       rotate -ws  -eu ($eulerRot[0] * -1) ($eulerRot[1] ) ($eulerRot[2]* -1 );
+       
+        float $vertex1[] = `("Floor_CrossbarMount" + $corners[$i] + ".transform")`;
+        float $vertex2[] = `("Axle_CrossbarMount" + $corners[$i] + ".transform")`;
+        
+        float $diffX = $vertex1[0] - $vertex2[0];
+        float $diffY = $vertex1[1] - $vertex2[1];
+        float $diffZ = $vertex1[2] - $vertex2[2];
+        float $barLength = sqrt( ($diffX*$diffX) + ($diffY*$diffY) + ($diffZ*$diffZ) );
+        
+        float $barSpawn[] = { ($vertex1[0] + $vertex2[0])/2 , ($vertex1[1] + $vertex2[1])/2, ($vertex1[2] + $vertex2[2])/2}; 
+        float $cylinderEnd[] = {$barSpawn[0], $barSpawn[1] - $barLength, $barSpawn[2]};
+      
+        float $vertWOSpawn[] = {$vertex1[0] - $barSpawn[0], $vertex1[1] - $barSpawn[1], $vertex1[2] - $barSpawn[2] };
+        float $cylEndWOSpawn[] = {$cylinderEnd[0] - $barSpawn[0], $cylinderEnd[1] - $barSpawn[1], $cylinderEnd[2] - $barSpawn[2] };
+        float $eulerRot[] = `angleBetween -er -v1 $vertWOSpawn[0] $vertWOSpawn[1] $vertWOSpawn[2] -v2 $cylEndWOSpawn[0] $cylEndWOSpawn[1] $cylEndWOSpawn[2]`;
+        
+        //you left off here
+       polyCylinder -r $barRadiusFloat -sx 8 -h $barLength -n ("Crossbar" + $corners[$i]);
+       move -ws $barSpawn[0] $barSpawn[1] $barSpawn[2];
+       rotate -ws  -eu ($eulerRot[0] * -1) ($eulerRot[1] ) ($eulerRot[2]* -1 );
+       
+    };
 }
