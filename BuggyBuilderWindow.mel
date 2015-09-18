@@ -10,7 +10,7 @@ if($winExist == 1)
 window 
 -w 250
 -h 500
--t "Buggy Builder" 
+-t "Theo Guarriello Buggy Builder" 
 BuggyBuilderWindow;
 
 columnLayout;

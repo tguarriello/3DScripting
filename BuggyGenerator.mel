@@ -11,7 +11,7 @@
 */
 
 
-buildLatticeStructure(2.0, 30, "Bitch");
+//buildLatticeStructure(2.0, 30, "Bitch");
 
 
 global proc buildLatticeStructure(float $newBarRadius, int $newBarSubAxis, string $newCageName)

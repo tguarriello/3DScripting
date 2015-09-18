@@ -1,0 +1,70 @@
+//SkeletonBuilder
+
+string $AlignAttrs[] = {".translateX", ".translateY", ".translateZ",".rotateX", ".rotateY", ".rotateZ"};
+string $Corners[] = {"_FL", "_FR", "_BL", "_BR"};
+string $Locators[] = {"Axle_AntiSwaybarMount", "Axle_ShockMount", "Axle_CrossbarMount",
+                      "Floor_CrossbarMount", "Body_ShockMount", "Floor_AntiSwaybarMount"};
+string $BodyPieces[] = {"Floor", "Roof", "Hood", "Trunk"};
+global proc CreateSkeleton()
+{
+    //create all the joints
+    joint -n ("bone_root") -rad 10;
+    for ($i = 0; $i < size($Corners); $i++)
+    {
+        for ($locator in $Locators)
+        {              
+            
+            joint -n ("bone_"+ $locator + $Corners[$i]) -rad 10;
+            select -cl;
+            for($attr in $AlignAttrs)
+            {
+                setAttr ("bone_"+ $locator + $Corners[$i] + $attr) `getAttr ($locator + $Corners[$i] + $attr)`; 
+            };    
+        };
+    };
+       
+    //parent all bones
+    for ($i = 0; $i < size($Corners); $i++)
+    {
+        parent ("bone_Floor_CrossbarMount" + $Corners[$i]) bone_root;
+        parent ("bone_Floor_AntiSwaybarMount" + $Corners[$i]) bone_root;
+        parent ("bone_Body_ShockMount" + $Corners[$i]) bone_root;
+        
+       parent ("bone_Axle_CrossbarMount" + $Corners[$i]) ("bone_Floor_CrossbarMount" + $Corners[$i]);
+       parent ("bone_Axle_AntiSwaybarMount" + $Corners[$i]) ("bone_Floor_AntiSwaybarMount" + $Corners[$i]);
+       parent ("bone_Axle_ShockMount" + $Corners[$i]) ("bone_Body_ShockMount" + $Corners[$i]);
+    };
+    select -cl;
+}
+
+global proc BindBuggySkin()
+{
+    //Bind Body
+    select -r bone_root;
+    select -add Hood Roof Floor Trunk;
+    select -add Radiator1 Engine Transmission TransferCase Transfer_Differential RearTransfer ;
+    bindSkin -tsb;
+    
+    
+    for ($i = 0; $i < size($Corners); $i++)
+    {
+        //bind shocks
+        select -r ("bone_Axle_ShockMount" + $Corners[$i]);
+        select -add ("Shock_Bottom" + $Corners[$i]) ("Shock_Spring" + $Corners[$i]);
+        bindSkin;
+        select -r ("bone_Body_ShockMount" + $Corners[$i]);
+        select -add ("Shock_Top" + $Corners[$i]);
+        bindSkin;
+        
+        //bind AntiSway bar
+        select -r ("bone_Floor_AntiSwaybarMount" + $Corners[$i]);
+        select -add ("AntiSwayBar" + $Corners[$i]);
+        bindSkin;
+        
+         //bind Crossbar bar
+        select -r ("bone_Floor_CrossbarMount" + $Corners[$i]);
+        select -add ("Crossbar" + $Corners[$i]);
+        bindSkin;  
+    } ; 
+}
+
