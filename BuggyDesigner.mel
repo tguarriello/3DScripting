@@ -1,0 +1,47 @@
+//BuggyDesigner.mel
+//section builder;
+
+float $MidSectionWidth = 133.0;
+float $MidSectionHeight = 50.0;
+float $MidSectionDepth = 137.0;
+
+float $FloorHeight = 28.0;
+float $FloorTaper = 0.6;
+
+float $HoodWidth = 140.0;
+float $HoodDepth = 147.0;
+
+float $TrunkWidth = 114.0;
+float $TrunkDepth = 143.0;
+
+float $RollCageWidth = 133.0;
+float $RollCageHeight = 60.0;
+//float $RollCageDepth = 
+
+
+polyCube -w $MidSectionWidth -h $MidSectionHeight -d $MidSectionDepth -n "Body_Center";
+select -r Body_Center;
+move 0 ($FloorHeight + $MidSectionHeight/2) 0;
+select -cl;
+
+
+polyCube -w $MidSectionWidth -h $FloorHeight -d 143 -n "Body_Floor";
+select -r Body_Floor;
+move 0 ($FloorHeight / 2) 0;
+select -cl;
+
+polyCube -w $HoodWidth -h $MidSectionHeight -d 143 -n "Body_Front";
+select -r Body_Front;
+move ($MidSectionWidth/2 + $HoodWidth/2) ($FloorHeight + $MidSectionHeight/2) 0;
+select -cl;
+
+polyCube -w $TrunkWidth -h $MidSectionHeight -d $TrunkDepth -n "Body_Trunk";
+select -r Body_Trunk;
+move (0 - ($MidSectionWidth/2 + $TrunkWidth/2)) ($FloorHeight + $MidSectionHeight/2) 0;
+select -cl;
+
+polyCube -w $MidSectionWidth -h $RollCageHeight -d $MidSectionDepth -n "Body_RollCage";
+select -r Body_RollCage;
+move 0 ($FloorHeight + $MidSectionHeight + $RollCageHeight/2) 0;
+select -cl;
+
