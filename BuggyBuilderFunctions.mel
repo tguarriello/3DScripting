@@ -1,0 +1,87 @@
+//The big one
+global proc buildLatticeStructure(float $newBarRadius, int $newBarSubAxis, string $newCageName)
+{
+   string $selectedObject[] = `ls -sl -sn`;
+   //string $SelObj = $selectedObject[0];
+   float $barRadiusFloat = $newBarRadius;
+   int $numEdges1[] =  `polyEvaluate -e $selectedObject[0]`;
+   float $size1 = $numEdges1[0];
+   //select cube; get list of strings that polyInfo returns (Eg,  EDGE      8:      2      4  Hard)
+   for($i = 0; $i < $size1; $i++)
+   {
+       select -r ($selectedObject[0] + ".e[" + $i + "]");
+       string $verts[] = `polyInfo -edgeToVertex`;
+       //parse vertex indecies from $verts[]
+       string $tokens[];
+       tokenize $verts[0] " :\n\r" $tokens;
+       //get vertIndecies
+       int $vertIndex1 = $tokens[2];
+       int $vertIndex2 = $tokens[3];
+       //get verts as floats[] array
+       float $vertex1[] = `pointPosition ($selectedObject[0] + ".vtx[" + $vertIndex2 + "]")`;
+       float $vertex2[] = `pointPosition ($selectedObject[0] + ".vtx[" + $vertIndex1 + "]")`;
+       
+       //calculate length and spawnPoint
+       float $diffX = $vertex1[0] - $vertex2[0];
+       float $diffY = $vertex1[1] - $vertex2[1];
+       float $diffZ = $vertex1[2] - $vertex2[2];
+       float $barLength = sqrt( ($diffX*$diffX) + ($diffY*$diffY) + ($diffZ*$diffZ) );
+       //bar spawns at midpoint of edge
+       float $barSpawn[] = { ($vertex1[0] + $vertex2[0])/2 , ($vertex1[1] + $vertex2[1])/2, ($vertex1[2] + $vertex2[2])/2}; 
+       
+       //get endpoint of cylinder
+       float $cylinderEnd[] = { $barSpawn[0], $barSpawn[1] - $barLength, $barSpawn[2] };
+          
+       float $vertWOSpawn[] = {$vertex1[0] - $barSpawn[0], $vertex1[1] - $barSpawn[1], $vertex1[2] - $barSpawn[2] };
+       float $cylEndWOSpawn[] = {$cylinderEnd[0] - $barSpawn[0], $cylinderEnd[1] - $barSpawn[1], $cylinderEnd[2] - $barSpawn[2] };
+       float $eulerRot[] = `angleBetween -er -v1 $vertWOSpawn[0] $vertWOSpawn[1] $vertWOSpawn[2] -v2 $cylEndWOSpawn[0] $cylEndWOSpawn[1] $cylEndWOSpawn[2]`;
+       
+       //Create polyCylinder (bar)
+       polyCylinder -r $barRadiusFloat -sx $newBarSubAxis -h $barLength -n ("Bar_" + $i);
+       move -ws $barSpawn[0] $barSpawn[1] $barSpawn[2];
+       rotate -ws  -eu ($eulerRot[0] * -1) ($eulerRot[1] ) ($eulerRot[2]* -1 );
+       //delete end faces
+       //select -r ("Bar_" + $i + ".f[8]") ("Bar_" + $i + ".f[9]");
+       select -r ("Bar_" + $i + ".f[" + ($newBarSubAxis) + "]") ("Bar_" + $i + ".f[" + ($newBarSubAxis + 1) + "]");
+       delete; 
+    };
+    //Attach all bars to eachother
+    select -r "Bar_**";
+    polyUnite -ch 0 -n $newCageName;
+    polyMergeVertex  -d 0.01 -am 1 -ch 1 ($newCageName);
+    CenterPivot;
+}
+
+
+/*
+Here are the variables for Creating the Chassis cubes:
+*/
+float $MidSectionWidth = 133.0;
+float $MidSectionHeight = 50.0;
+float $MidSectionDepth = 137.0;
+//this should not be larger than 1.0
+float $MidSectionTaper = .95;
+
+
+float $FloorHeight = 28.0;
+float $FloorWidth = $MidSectionWidth * $MidSectionTaper;
+float $FloorTaper = 0.6;
+
+float $HoodWidth = 140.0;
+float $HoodDepth = 147.0;
+
+float $TrunkWidth = 114.0;
+float $TrunkDepth = 143.0;
+
+float $RollCageWidth = 133.0;
+float $RollCageHeight = 60.0;
+
+global proc CreateBodyCenterCube(float $newWidth, float $newHeight, float $newDepth)
+{
+    polyCube -w $MidSectionWidth -h $MidSectionHeight -d $MidSectionDepth -n "Body_Center";
+    select -r Body_Center;
+    move 0 ($FloorHeight + $MidSectionHeight/2) 0;
+    select -r Body_Center.f[3];
+    scale $MidSectionTaper 1 1;
+    move `(1 - $MidSectionTaper/2)` 0 0;
+}

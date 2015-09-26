@@ -4,8 +4,12 @@
 float $MidSectionWidth = 133.0;
 float $MidSectionHeight = 50.0;
 float $MidSectionDepth = 137.0;
+//this should not be larger than 1.0
+float $MidSectionTaper = .95;
+
 
 float $FloorHeight = 28.0;
+float $FloorWidth = $MidSectionWidth * $MidSectionTaper;
 float $FloorTaper = 0.6;
 
 float $HoodWidth = 140.0;
@@ -18,30 +22,47 @@ float $RollCageWidth = 133.0;
 float $RollCageHeight = 60.0;
 //float $RollCageDepth = 
 
+MakeCenterCube();
+MakeFloorCube();
 
-polyCube -w $MidSectionWidth -h $MidSectionHeight -d $MidSectionDepth -n "Body_Center";
-select -r Body_Center;
-move 0 ($FloorHeight + $MidSectionHeight/2) 0;
-select -cl;
+proc MakeCenterCube()
+{
+    polyCube -w $MidSectionWidth -h $MidSectionHeight -d $MidSectionDepth -n "Body_Center";
+    select -r Body_Center;
+    move 0 ($FloorHeight + $MidSectionHeight/2) 0;
+    select -r Body_Center.f[3];
+    scale $MidSectionTaper 1 1;
+    move `(1 - $MidSectionTaper/2)` 0 0;
+}
 
 
-polyCube -w $MidSectionWidth -h $FloorHeight -d 143 -n "Body_Floor";
-select -r Body_Floor;
-move 0 ($FloorHeight / 2) 0;
-select -cl;
-
-polyCube -w $HoodWidth -h $MidSectionHeight -d 143 -n "Body_Front";
-select -r Body_Front;
-move ($MidSectionWidth/2 + $HoodWidth/2) ($FloorHeight + $MidSectionHeight/2) 0;
-select -cl;
-
-polyCube -w $TrunkWidth -h $MidSectionHeight -d $TrunkDepth -n "Body_Trunk";
-select -r Body_Trunk;
-move (0 - ($MidSectionWidth/2 + $TrunkWidth/2)) ($FloorHeight + $MidSectionHeight/2) 0;
-select -cl;
-
-polyCube -w $MidSectionWidth -h $RollCageHeight -d $MidSectionDepth -n "Body_RollCage";
-select -r Body_RollCage;
-move 0 ($FloorHeight + $MidSectionHeight + $RollCageHeight/2) 0;
-select -cl;
-
+ proc MakeFloorCube()
+{
+    polyCube -w $MidSectionWidth -h $FloorHeight -d 143 -n "Body_Floor";
+    select -r Body_Floor;
+    move `(1 - $MidSectionTaper/2)` `($FloorHeight / 2)` 0;
+    select -r Body_Floor.f[3];
+    scale $FloorTaper 1 $FloorTaper;
+    
+}
+ proc MakeFrontCube()
+{
+    polyCube -w $HoodWidth -h $MidSectionHeight -d 143 -n "Body_Front";
+    select -r Body_Front;
+    move ($MidSectionWidth/2 + $HoodWidth/2) ($FloorHeight + $MidSectionHeight/2) 0;
+    select -cl;
+}
+ proc MakeTrunkCube()
+{
+    polyCube -w $TrunkWidth -h $MidSectionHeight -d $TrunkDepth -n "Body_Trunk";
+    select -r Body_Trunk;
+    move (0 - ($MidSectionWidth/2 + $TrunkWidth/2)) ($FloorHeight + $MidSectionHeight/2) 0;
+    select -cl;
+}
+ proc MakeRollCageCube()
+{
+    polyCube -w $MidSectionWidth -h $RollCageHeight -d $MidSectionDepth -n "Body_RollCage";
+    select -r Body_RollCage;
+    move 0 ($FloorHeight + $MidSectionHeight + $RollCageHeight / 2) 0;
+    select -cl;
+}

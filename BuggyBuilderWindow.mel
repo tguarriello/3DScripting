@@ -23,7 +23,6 @@ text -label "Pick Individual Bar Subdivision Axis:";
 
 intFieldGrp NewSubAxis;
     
-
 floatSliderGrp
     -field true 
     -min 1.0
