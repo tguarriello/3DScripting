@@ -12,8 +12,126 @@ window
 -h 500
 -t "Theo Guarriello Buggy Builder" 
 BuggyBuilderWindow;
+columnLayout;
+        floatSliderGrp
+        -field true 
+        -min 100.0
+        -max 150.0
+        -v 133.0
+        -label "MidSectionWidth: "
+        MidSectionWidthValue;
+        
+        floatSliderGrp
+        -field true 
+        -min 25.0
+        -max 90.0
+        -v 50.0
+        -label "MidSectionHeight: "
+        MidSectionHeightValue;
+        
+        floatSliderGrp
+        -field true 
+        -min 100.0
+        -max 150.0
+        -v 137.0
+        -label "MidSectionDepth: "
+        MidSectionDepthValue;
+        
+        floatSliderGrp
+        -field true 
+        -min 0.0
+        -max 1.0
+        -v .95
+        -label "MidSectionTaper: "
+        MidSectionTaperValue;
+        
+        floatSliderGrp
+        -field true 
+        -min 20.0
+        -max 40.0
+        -v 28.0
+        -label "FloorHeight: "
+        FloorHeightValue;
+        
+        floatSliderGrp
+        -field true 
+        -min 0.0
+        -max 1.0
+        -v .6
+        -label "FloorTaper: "
+        FloorTaperValue;
+        
+        
+        floatSliderGrp
+        -field true 
+        -min 120.0
+        -max 150.0
+        -v 140.0
+        -label "Hood Width: "
+        HoodWidthValue;
+        
+        floatSliderGrp
+        -field true 
+        -min 120.0
+        -max 150.0
+        -v 147.0
+        -label "Hood Depth: "
+        HoodDepthValue;
+        
+        floatSliderGrp
+        -field true 
+        -min 100
+        -max 130
+        -v 114.0
+        -label "Trunk Width: "
+        TrunkWidthValue;
+        
+        floatSliderGrp
+        -field true 
+        -min 120
+        -max 160.0
+        -v 140.0
+        -label "Trunk Depth: "
+        TrunkDepthValue;
+        
+        floatSliderGrp
+        -field true 
+        -min 100.0
+        -max 150.0
+        -v 133.0
+        -label "RollCageWidth: "
+        RollCageWidthValue;
+        
+        floatSliderGrp
+        -field true 
+        -min 25.0
+        -max 90.0
+        -v 60.0
+        -label "RollCageHeight: "
+        RollCageHeightValue;
 
 columnLayout;
+    checkBoxGrp
+        -numberOfCheckBoxes 2
+        -label "Top Row: "
+        -labelArray2 "Roll Cage" "Bed Cap"
+        TopBoxGrp;
+
+    
+    checkBoxGrp
+        -numberOfCheckBoxes 3
+        -label "Middle Row: "
+        -labelArray3 "Front" "Center" "Trunk"
+        MiddleBoxGrp;
+        
+        
+    checkBoxGrp
+        -numberOfCheckBoxes 1
+        -label "Floor"
+        BottomBoxGrp;
+        
+
+    button -label CreateWhiteBox -command "CreateWhiteBox";
 
 textFieldGrp
     -label "Give name to new Cage"
@@ -23,6 +141,7 @@ text -label "Pick Individual Bar Subdivision Axis:";
 
 intFieldGrp NewSubAxis;
     
+
 floatSliderGrp
     -field true 
     -min 1.0
@@ -52,13 +171,40 @@ button -label PlaceShocks -en false -command "PlaceAllShocks" PlaceShocks;
 
 button -label PlaceSuspension -command "PlaceAllBars";
 
+proc CreateWhiteBox()
+{
+    if(`checkBoxGrp -query -value1 TopBoxGrp` == 1)
+    { CreateBodyRollCageCube();}
+    
+    /*
+    if(`checkBoxGrp -query -value2 TopBoxGrp` == 1)
+    { CreateBodyRollCageCube();}
+    */
+    
+    if(`checkBoxGrp -query -value1 MiddleBoxGrp` == 1)
+    { CreateBodyFrontCube();}
+    
+    if(`checkBoxGrp -query -value2 MiddleBoxGrp` == 1)
+    { CreateBodyCenterCube();}
+    
+    if(`checkBoxGrp -query -value3 MiddleBoxGrp` == 1)
+    { CreateBodyTrunkCube;}
+    
+    if(`checkBoxGrp -query -value1 BottomBoxGrp` == 1)
+    { CreateBodyFloorCube();}
+    
+    
+}
+
 proc CallLatticeProc()
 {
+    /*
     //buildLatticeStructure(float $newBarRadius, string $newCageName){}
     float $BarRadius = `floatSliderGrp -query -v "BarRadiusValue"`;
     int $BarSubAxis = `intFieldGrp -query -v1 "NewSubAxis"`;
     string $CageName = `textFieldGrp -query -text "NewCageName"`;
     buildLatticeStructure($BarRadius, $BarSubAxis, $CageName);
+    */
 }
 
 proc CallPlaceLocators()

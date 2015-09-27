@@ -85,3 +85,35 @@ global proc CreateBodyCenterCube(float $newWidth, float $newHeight, float $newDe
     scale $MidSectionTaper 1 1;
     move `(1 - $MidSectionTaper/2)` 0 0;
 }
+
+global proc CreateBodyFloorCube()
+{
+    polyCube -w $MidSectionWidth -h $FloorHeight -d 143 -n "Body_Floor";
+    select -r Body_Floor;
+    move 0 ($FloorHeight / 2) 0;
+    select -cl;
+}
+
+global proc CreateBodyFrontCube()
+{
+    polyCube -w $HoodWidth -h $MidSectionHeight -d 143 -n "Body_Front";
+    select -r Body_Front;
+    move ($MidSectionWidth/2 + $HoodWidth/2) ($FloorHeight + $MidSectionHeight/2) 0;
+    select -cl;
+}
+
+global proc CreateBodyTrunkCube()
+{
+    polyCube -w $TrunkWidth -h $MidSectionHeight -d $TrunkDepth -n "Body_Trunk";
+    select -r Body_Trunk;
+    move (0 - ($MidSectionWidth/2 + $TrunkWidth/2)) ($FloorHeight + $MidSectionHeight/2) 0;
+    select -cl;
+}
+
+global proc CreateBodyRollCageCube()
+{
+    polyCube -w $MidSectionWidth -h $RollCageHeight -d $MidSectionDepth -n "Body_RollCage";
+    select -r Body_RollCage;
+    move 0 ($FloorHeight + $MidSectionHeight + $RollCageHeight/2) 0;
+    select -cl;    
+}
