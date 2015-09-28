@@ -56,6 +56,7 @@ global proc buildLatticeStructure(float $newBarRadius, int $newBarSubAxis, strin
 /*
 Here are the variables for Creating the Chassis cubes:
 */
+/*
 float $MidSectionWidth = 133.0;
 float $MidSectionHeight = 50.0;
 float $MidSectionDepth = 137.0;
@@ -75,20 +76,22 @@ float $TrunkDepth = 143.0;
 
 float $RollCageWidth = 133.0;
 float $RollCageHeight = 60.0;
+*/
 
-global proc CreateBodyCenterCube(float $newWidth, float $newHeight, float $newDepth)
+global proc CreateBodyCenterCube(float $newWidth, float $newHeight, float $newDepth, float $newTaper)
 {
-    polyCube -w $MidSectionWidth -h $MidSectionHeight -d $MidSectionDepth -n "Body_Center";
+    polyCube -w $newWidth -h $newHeight -d $newDepth -n "Body_Center";
     select -r Body_Center;
-    move 0 ($FloorHeight + $MidSectionHeight/2) 0;
+    //Change the 28 back to floorheight somehow
+    move 0 (28 + $newHeight/2) 0;
     select -r Body_Center.f[3];
-    scale $MidSectionTaper 1 1;
-    move `(1 - $MidSectionTaper/2)` 0 0;
+    scale $newTaper 1 1;
+    move (1 - $newTaper/2) 0 0;
 }
-
+/*
 global proc CreateBodyFloorCube()
 {
-    polyCube -w $MidSectionWidth -h $FloorHeight -d 143 -n "Body_Floor";
+    polyCube -w $MidSectionWidth -h $FloorHeight -d 143.0 -n "Body_Floor";
     select -r Body_Floor;
     move 0 ($FloorHeight / 2) 0;
     select -cl;
@@ -109,11 +112,12 @@ global proc CreateBodyTrunkCube()
     move (0 - ($MidSectionWidth/2 + $TrunkWidth/2)) ($FloorHeight + $MidSectionHeight/2) 0;
     select -cl;
 }
-
-global proc CreateBodyRollCageCube()
+*/
+global proc CreateBodyRollCageCube(float $newWidth, float $newHeight, float $newDepth)
 {
-    polyCube -w $MidSectionWidth -h $RollCageHeight -d $MidSectionDepth -n "Body_RollCage";
+    polyCube -w $newWidth -h $newHeight -d $newDepth -n "Body_RollCage";
     select -r Body_RollCage;
-    move 0 ($FloorHeight + $MidSectionHeight + $RollCageHeight/2) 0;
+    //replace 28 w/ floorheight and 50 with MidSectionHeight
+    move 0 (28 + 50 + ($newHeight/2)) 0;
     select -cl;    
 }

@@ -39,6 +39,7 @@ columnLayout;
         
         floatSliderGrp
         -field true 
+        -pre 3
         -min 0.0
         -max 1.0
         -v .95
@@ -173,27 +174,41 @@ button -label PlaceSuspension -command "PlaceAllBars";
 
 proc CreateWhiteBox()
 {
+    /*
     if(`checkBoxGrp -query -value1 TopBoxGrp` == 1)
-    { CreateBodyRollCageCube();}
+    { CreateBodyRollCageCube(`RollCageWidthValue -query -value`, 
+                              `RollCageHeightValue -query -value`,
+                              `MidSectionDepthValue -query -value`);}
+    */
     
     /*
     if(`checkBoxGrp -query -value2 TopBoxGrp` == 1)
     { CreateBodyRollCageCube();}
     */
     
+    /*
     if(`checkBoxGrp -query -value1 MiddleBoxGrp` == 1)
     { CreateBodyFrontCube();}
+    */
     
     if(`checkBoxGrp -query -value2 MiddleBoxGrp` == 1)
-    { CreateBodyCenterCube();}
+    {
+        float $newWidth  = `floatSliderGrp -query  -value MidSectionWidthValue`;
+        float $newHeight = `floatSliderGrp -query  -value MidSectionHeightValue`;
+        float $newDepth  = `floatSliderGrp -query  -value MidSectionDepthValue`;
+        float $newTaper  = `floatSliderGrp -query  -value MidSectionTaperValue`;
+        
+         CreateBodyCenterCube($newWidth, $newHeight, $newDepth, $newTaper);
+     }
     
+    /*
     if(`checkBoxGrp -query -value3 MiddleBoxGrp` == 1)
     { CreateBodyTrunkCube;}
     
     if(`checkBoxGrp -query -value1 BottomBoxGrp` == 1)
     { CreateBodyFloorCube();}
     
-    
+    */
 }
 
 proc CallLatticeProc()
